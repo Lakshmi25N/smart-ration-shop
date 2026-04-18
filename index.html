@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TNRation — Smart Ration Shop System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.google.com/specimen/Share+Tech?preview.script=Latn" rel="stylesheet">
+<script src="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js)" integrity="sha512-GsIDXPiRixJ6ScfWtHGK1AtxBLcDYxVem4NpBEiXMCSECYKnoeYyHImp7E4jHCEGHlLngKKabvZcEjOQy0JtRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     ROLE SELECTOR
+══════════════════════════════ -->
+<div id="role-screen">
+  <div class="role-box">
+    <div class="role-logo">⬡ TNRation</div>
+    <div class="role-sub">Smart Ration Shop Management · Villupuram, Tamil Nadu</div>
+    <div class="role-cards">
+      <div class="role-card customer" onclick="enterAsCustomer()">
+        <div class="role-icon">🧑‍🤝‍🧑</div>
+        <div class="role-title">Customer</div>
+        <div class="role-desc">View tokens, check items, apply for a token & submit complaints</div>
+      </div>
+      <div class="role-card vendor" onclick="showVendorLogin()">
+        <div class="role-icon">🏪</div>
+        <div class="role-title">Vendor / Staff</div>
+        <div class="role-desc">Process bills, serve customers, manage distribution & OTP</div>
+      </div>
+      <div class="role-card admin" onclick="showAdminLogin()">
+        <div class="role-icon">🛡️</div>
+        <div class="role-title">Admin</div>
+        <div class="role-desc">Manage tokens, stock, customers, announcements & reports</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-title" id="login-title">Login</div>
+    <div class="login-sub" id="login-sub">Enter your credentials</div>
+    <div class="login-error" id="login-error">Incorrect credentials. Please try again.</div>
+    <div class="form-group"><label>Username</label><input type="text" id="login-user" placeholder="username"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.4rem" onclick="doLogin()">🔓 Sign In</button>
+    <span class="back-link" onclick="backToRole()">← Back to role selection</span>
+    <div style="margin-top:0.75rem;font-size:0.73rem;color:var(--muted)" id="login-hint"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     NAV
+══════════════════════════════ -->
+<nav id="main-nav" style="display:none">
+  <div style="display:flex;align-items:center">
+    <div class="nav-brand">⬡ TNRation</div>
+    <span class="nav-role-badge" id="nav-role-badge"></span>
+  </div>
+  <div class="nav-links" id="nav-links"></div>
+  <div class="nav-right">
+    <button class="logout-btn" onclick="logout()">← Exit</button>
+  </div>
+</nav>
+
+<main id="main-app">
+
+<!-- ════════════════ ADMIN PAGES ════════════════ -->
+
+<!-- ADMIN HOME -->
+<div id="page-home-admin" class="page">
+  <div class="dash-hero-banner" id="a-dash-banner">
+    <div class="dash-banner-inner">
+      <div>
+        <div class="dash-banner-tag">🛡️ Admin Dashboard</div>
+        <div class="dash-banner-title">Admin <span id="a-dash-title-em" style="color:var(--green)">Control</span></div>
+        <div class="dash-banner-sub">Villupuram Ration Shop · 9 AM – 6 PM · Lunch: 1–2 PM</div>
+        <div class="dash-status-pill" id="a-status-pill">
+          <div class="status-dot" id="a-hero-dot"></div>
+          <span id="a-hero-label" style="font-family:var(--font-head);font-weight:800;font-size:0.95rem">—</span>
+          <span id="a-status-pill-sub" style="font-size:0.72rem;opacity:0.7;margin-left:0.2rem"></span>
+        </div>
+      </div>
+      <div class="dash-banner-right">
+        <div style="text-align:center">
+          <div style="font-size:0.63rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.18rem" id="a-timer-label">Open Duration</div>
+          <div style="font-family:var(--font-head);font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:2px" id="a-hero-timer">--:--:--</div>
+        </div>
+      </div>
+    </div>
+    <div class="timing-bar">
+      <div class="timing-slot slot-open" id="a-slot-morning"><div class="timing-slot-label">Morning</div><div class="timing-slot-time">9:00 AM – 1:00 PM</div></div>
+      <div class="timing-divider">·</div>
+      <div class="timing-slot slot-lunch" id="a-slot-lunch"><div class="timing-slot-label">Lunch Break</div><div class="timing-slot-time">1:00 PM – 2:00 PM</div></div>
+      <div class="timing-divider">·</div>
+      <div class="timing-slot slot-open" id="a-slot-evening"><div class="timing-slot-label">Evening</div><div class="timing-slot-time">2:00 PM – 6:00 PM</div></div>
+    </div>
+  </div>
+  <div class="ann-card">
+    <div class="ann-header"><div class="ann-tag">📢 Announcement</div><button class="btn btn-outline btn-sm" onclick="toggleAnnEdit()">Edit</button></div>
+    <div class="ann-text" id="ann-display">—</div>
+    <div class="ann-edit" id="ann-edit"><input type="text" id="ann-input" placeholder="Type announcement..."><button class="btn btn-primary btn-sm" onclick="saveAnnouncement()">Save</button></div>
+  </div>
+  <div class="grid-3" style="margin-bottom:1.3rem">
+    <div class="stat-card blue"><div class="stat-label">Current Token</div><div class="stat-value" id="a-stat-current" style="color:var(--yellow)">—</div><div class="stat-sub">Being served now</div></div>
+    <div class="stat-card green"><div class="stat-label">Completed</div><div class="stat-value" id="a-stat-done" style="color:var(--green)">0</div><div class="stat-sub">Tokens served today</div></div>
+    <div class="stat-card orange"><div class="stat-label">Bills Today</div><div class="stat-value" id="a-stat-bills" style="color:var(--orange)">0</div><div class="stat-sub">Transactions processed</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">📋 Today's Summary</div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem">
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem"><span style="color:var(--muted)">Total Tokens</span><span id="a-sum-total" style="font-weight:600">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem"><span style="color:var(--muted)">Completed</span><span id="a-sum-done" style="color:var(--green);font-weight:600">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem"><span style="color:var(--muted)">Waiting</span><span id="a-sum-queue" style="color:var(--warn);font-weight:600">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem"><span style="color:var(--muted)">Active Customers</span><span id="a-sum-cust" style="color:var(--accent);font-weight:600">0</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem"><span style="color:var(--muted)">Inactive Cards</span><span id="a-sum-inactive" style="color:var(--danger);font-weight:600">0</span></div>
+      </div>
+    </div>
+    <div class="card"><div class="card-title">⚡ Quick Actions</div>
+      <div style="display:flex;flex-direction:column;gap:0.55rem">
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="navigate('token-admin');generateToken()">🎫 Generate Token</button>
+        <button class="btn btn-success" style="width:100%;justify-content:center" onclick="navigate('token-admin');serveNext()">✅ Serve Next Token</button>
+        <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="navigate('customers-admin')">👥 View Customers</button>
+        <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="navigate('stock-admin')">📦 Manage Stock</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN TOKEN -->
+<div id="page-token-admin" class="page">
+  <div class="section-title">Token <span>Management</span></div>
+  <div style="display:flex;gap:0.7rem;flex-wrap:wrap;margin-bottom:1.4rem">
+    <button class="btn btn-primary" onclick="generateToken()">🎫 Generate Token</button>
+    <button class="btn btn-success" onclick="serveNext()">✅ Serve Next</button>
+    <button class="btn btn-danger" onclick="resetTokens()">🔄 Reset All</button>
+    <div style="margin-left:auto;display:flex;gap:0.38rem">
+      <button class="btn btn-outline btn-sm" id="view-line-btn" onclick="setView('line')">◼ Line</button>
+      <button class="btn btn-outline btn-sm" id="view-list-btn" onclick="setView('list')">☰ List</button>
+    </div>
+  </div>
+  <div id="view-token-line" class="token-line-container">
+    <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.85rem;display:flex;gap:1.2rem;flex-wrap:wrap">
+      <span><span style="color:var(--green)">●</span> Done</span>
+      <span><span style="color:var(--yellow)">●</span> Current</span>
+      <span><span style="color:#a0aec0">●</span> Next</span>
+      <span><span style="color:var(--muted)">●</span> Waiting</span>
+    </div>
+    <div class="token-line" id="token-line-ui"><div style="color:var(--muted);font-size:0.83rem">No tokens yet.</div></div>
+  </div>
+  <div id="view-token-list" style="display:none">
+    <div id="token-list-container"><div class="empty-state"><div class="es-icon">🎫</div><p>No tokens generated yet.</p></div></div>
+  </div>
+</div>
+
+<!-- ADMIN STOCK -->
+<div id="page-stock-admin" class="page">
+  <div class="section-title">Stock <span>Management</span></div>
+  <div class="grid-2" style="align-items:start">
+    <div>
+      <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;margin-bottom:0.9rem">📦 Stock Items</div>
+      <div id="stock-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">✏️ Edit Item</div>
+      <div class="form-group"><label>Select Item</label><select id="edit-item-select" onchange="loadItemEdit()"><option value="">— Choose item —</option></select></div>
+      <div class="form-group"><label>Allocation per Family</label><input type="text" id="edit-alloc" placeholder="e.g. 5 kg / family"></div>
+      <div class="form-group"><label>Price / Rate</label><input type="text" id="edit-price" placeholder="e.g. ₹3/kg"></div>
+      <div class="form-group"><label>Stock Quantity (total units)</label><input type="number" id="edit-stock-qty" placeholder="e.g. 500" min="0"></div>
+      <button class="btn btn-primary btn-sm" onclick="saveItemEdit()">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN CUSTOMERS -->
+<div id="page-customers-admin" class="page">
+  <div class="section-title">Customer <span>Database</span></div>
+  <div style="display:flex;gap:0.7rem;flex-wrap:wrap;margin-bottom:1.2rem">
+    <input type="text" id="cust-search-input" placeholder="🔍 Search name or card number..." style="flex:1;min-width:220px" oninput="renderCustomerTable()">
+    <select id="cust-filter-status" onchange="renderCustomerTable()" style="width:140px">
+      <option value="">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="warning">Warning</option>
+    </select>
+    <button class="btn btn-orange" onclick="openAddCustomerModal()">+ Add Customer</button>
+  </div>
+  <div class="cust-table-wrap">
+    <table>
+      <thead><tr><th>Card No</th><th>Name</th><th>Phone</th><th>Members</th><th>Last Visit</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="customer-table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADMIN TRANSACTIONS -->
+<div id="page-transactions-admin" class="page">
+  <div class="section-title">Transaction <span>History</span></div>
+  <div style="display:flex;gap:0.7rem;flex-wrap:wrap;margin-bottom:1.2rem">
+    <input type="text" id="txn-search-input" placeholder="🔍 Search customer or card..." style="flex:1;min-width:220px" oninput="renderTransactionList()">
+    <select id="txn-date-filter" onchange="renderTransactionList()" style="width:140px">
+      <option value="">All Dates</option><option value="today">Today</option>
+    </select>
+  </div>
+  <div id="txn-list-container"></div>
+</div>
+
+<!-- ADMIN COMPLAINTS -->
+<div id="page-complaints-admin" class="page">
+  <div class="section-title">Complaints <span>Manager</span></div>
+  <div style="display:flex;gap:0.5rem;margin-bottom:1.2rem;flex-wrap:wrap">
+    <button class="btn btn-outline btn-sm" onclick="filterComplaints('all')" id="cf-all">All</button>
+    <button class="btn btn-outline btn-sm" onclick="filterComplaints('Pending')" id="cf-pending">Pending</button>
+    <button class="btn btn-outline btn-sm" onclick="filterComplaints('Resolved')" id="cf-resolved">Resolved</button>
+  </div>
+  <div id="admin-complaint-list"></div>
+</div>
+
+<!-- ════════════════ VENDOR PAGES ════════════════ -->
+
+<!-- VENDOR HOME / BILLING -->
+<div id="page-vendor-home" class="page">
+  <div class="dash-hero-banner" id="v-dash-banner">
+    <div class="dash-banner-inner">
+      <div>
+        <div class="dash-banner-tag">🏪 Vendor Dashboard</div>
+        <div class="dash-banner-title">Distribution <span id="v-dash-title-em" style="color:var(--orange)">Counter</span></div>
+        <div class="dash-banner-sub">Villupuram Ration Shop · Staff Portal</div>
+        <div class="dash-status-pill" id="v-status-pill">
+          <div class="status-dot" id="v-hero-dot"></div>
+          <span id="v-hero-label" style="font-family:var(--font-head);font-weight:800;font-size:0.95rem">—</span>
+          <span id="v-status-pill-sub" style="font-size:0.72rem;opacity:0.7;margin-left:0.2rem"></span>
+        </div>
+      </div>
+      <div class="dash-banner-right">
+        <div style="text-align:center">
+          <div style="font-size:0.63rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.18rem" id="v-timer-label">Open Duration</div>
+          <div style="font-family:var(--font-head);font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:2px" id="v-hero-timer">--:--:--</div>
+        </div>
+      </div>
+    </div>
+    <div class="timing-bar">
+      <div class="timing-slot slot-open" id="v-slot-morning"><div class="timing-slot-label">Morning</div><div class="timing-slot-time">9:00 AM – 1:00 PM</div></div>
+      <div class="timing-divider">·</div>
+      <div class="timing-slot slot-lunch" id="v-slot-lunch"><div class="timing-slot-label">Lunch Break</div><div class="timing-slot-time">1:00 PM – 2:00 PM</div></div>
+      <div class="timing-divider">·</div>
+      <div class="timing-slot slot-open" id="v-slot-evening"><div class="timing-slot-label">Evening</div><div class="timing-slot-time">2:00 PM – 6:00 PM</div></div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:1.3rem">
+    <div class="stat-card orange"><div class="stat-label">Bills Today</div><div class="stat-value" id="v-bills-today" style="color:var(--orange)">0</div><div class="stat-sub">Transactions processed</div></div>
+    <div class="stat-card green"><div class="stat-label">Current Token</div><div class="stat-value" id="v-current-token" style="color:var(--yellow)">—</div><div class="stat-sub">Being served</div></div>
+    <div class="stat-card blue"><div class="stat-label">Queue</div><div class="stat-value" id="v-queue-count" style="color:var(--accent)">0</div><div class="stat-sub">Customers waiting</div></div>
+  </div>
+
+  <!-- Customer Search & Bill -->
+  <div class="grid-2" style="align-items:start">
+    <div>
+      <div class="customer-search-card">
+        <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;margin-bottom:0.9rem">🔍 Find Customer</div>
+        <div class="form-group"><label>Ration Card Number</label>
+          <input type="text" id="vendor-card-input" placeholder="e.g. TN-123456" oninput="liveSearchCustomer()">
+        </div>
+        <div id="customer-search-results"></div>
+      </div>
+
+      <!-- Found Customer Info -->
+      <div id="found-customer-section" style="display:none">
+        <div class="customer-found-card">
+          <div class="customer-info-row">
+            <div>
+              <div class="customer-name-big" id="found-cust-name">—</div>
+              <div style="font-size:0.78rem;color:var(--muted);margin-top:0.2rem">Card: <span id="found-cust-card" style="color:var(--orange);font-family:var(--font-mono)">—</span></div>
+            </div>
+            <div id="found-cust-status-badge"></div>
+          </div>
+          <div id="found-cust-info-rows" style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.8rem;color:var(--muted);margin-top:0.2rem"></div>
+          <div id="found-cust-last-visit" style="font-size:0.75rem;color:var(--muted);margin-top:0.6rem"></div>
+          <div id="inactive-warning" style="display:none" class="msg-alert danger" style="margin-top:0.75rem"></div>
+        </div>
+
+        <!-- Item Selector -->
+        <div class="card" style="margin-top:0">
+          <div class="card-title">🛒 Select Items for Distribution</div>
+          <div class="item-selector" id="item-selector"></div>
+          <div class="bill-preview" id="bill-preview" style="display:none"></div>
+          <div style="margin-top:1rem;display:flex;gap:0.6rem;flex-wrap:wrap">
+            <button class="btn btn-orange" id="generate-bill-btn" onclick="initiateBill()" style="flex:1;justify-content:center">🧾 Generate Bill & OTP</button>
+            <button class="btn btn-outline btn-sm" onclick="clearVendorSearch()">✕ Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card">
+      <div class="card-title">🧾 Today's Bills</div>
+      <div id="vendor-today-bills"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ CUSTOMER PAGES ════════════════ -->
+
+<!-- CUSTOMER HOME -->
+<div id="page-home-customer" class="page">
+  <div class="dash-hero-banner" id="c-dash-banner">
+    <div class="dash-banner-inner">
+      <div>
+        <div class="dash-banner-tag">👤 Customer Portal</div>
+        <div class="dash-banner-title">Welcome to <span id="c-dash-title-em" style="color:var(--green)">TNRation</span></div>
+        <div class="dash-banner-sub">Villupuram Ration Shop · 9 AM – 6 PM · Lunch: 1–2 PM</div>
+        <div class="dash-status-pill" id="c-status-pill">
+          <div class="status-dot" id="c-hero-dot"></div>
+          <span id="c-hero-label" style="font-family:var(--font-head);font-weight:800;font-size:0.95rem">—</span>
+          <span id="c-status-pill-sub" style="font-size:0.72rem;opacity:0.7;margin-left:0.2rem"></span>
+        </div>
+      </div>
+      <div class="dash-banner-right">
+        <div style="text-align:center">
+          <div style="font-size:0.63rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.18rem" id="c-timer-label">Open Duration</div>
+          <div style="font-family:var(--font-head);font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:2px" id="c-hero-timer">--:--:--</div>
+        </div>
+      </div>
+    </div>
+    <div class="timing-bar">
+      <div class="timing-slot slot-open" id="c-slot-morning"><div class="timing-slot-label">Morning</div><div class="timing-slot-time">9:00 AM – 1:00 PM</div></div>
+      <div class="timing-divider">·</div>
+      <div class="timing-slot slot-lunch" id="c-slot-lunch"><div class="timing-slot-label">Lunch Break</div><div class="timing-slot-time">1:00 PM – 2:00 PM</div></div>
+      <div class="timing-divider">·</div>
+      <div class="timing-slot slot-open" id="c-slot-evening"><div class="timing-slot-label">Evening</div><div class="timing-slot-time">2:00 PM – 6:00 PM</div></div>
+    </div>
+  </div>
+  <div class="ann-card">
+    <div class="ann-header"><div class="ann-tag">📢 Announcement</div></div>
+    <div class="ann-text" id="c-ann-display">—</div>
+  </div>
+  <div class="grid-3" style="margin-bottom:1.3rem">
+    <div class="stat-card yellow"><div class="stat-label">Now Serving</div><div class="stat-value" id="c-stat-current" style="color:var(--yellow)">—</div><div class="stat-sub">Current token</div></div>
+    <div class="stat-card blue"><div class="stat-label">In Queue</div><div class="stat-value" id="c-stat-queue" style="color:var(--accent)">0</div><div class="stat-sub">Waiting ahead</div></div>
+    <div class="stat-card green"><div class="stat-label">Completed</div><div class="stat-value" id="c-stat-done" style="color:var(--green)">0</div><div class="stat-sub">Served today</div></div>
+  </div>
+  <div id="my-token-section" style="display:none;margin-bottom:1.3rem">
+    <div class="my-token-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+        <div>
+          <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.35rem">Your Token</div>
+          <div class="my-token-num" id="my-token-num">#—</div>
+          <div id="my-token-status" style="font-size:0.82rem;color:var(--muted);margin-top:0.35rem">—</div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="cancelMyToken()">Cancel Token</button>
+      </div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🎫 Get a Token</div>
+      <div id="get-token-section">
+        <div class="form-group"><label>Your Name</label><input type="text" id="cust-name" placeholder="Enter your name"></div>
+        <div class="form-group"><label>Ration Card Number</label><input type="text" id="cust-card" placeholder="e.g. TN-123456"></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="customerGetToken()">🎫 Get My Token</button>
+      </div>
+      <div id="already-has-token" style="display:none;color:var(--muted);font-size:0.87rem">You already have an active token above.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ Quick Links</div>
+      <div style="display:flex;flex-direction:column;gap:0.52rem">
+        <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="navigate('items-customer')">🛒 View Available Items</button>
+        <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="navigate('complaint-customer')">📝 Submit Complaint</button>
+        <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="navigate('token-customer')">📊 Live Token Board</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMER TOKEN BOARD -->
+<div id="page-token-customer" class="page">
+  <div class="section-title">Live Token <span>Board</span></div>
+  <div class="live-board">
+    <div class="live-label">Now Serving</div>
+    <div id="live-token-display"><div class="live-token-none">—</div></div>
+    <div class="live-sub" id="live-token-sub">Loading...</div>
+  </div>
+  <div class="token-line-container">
+    <div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.85rem;display:flex;gap:1.2rem;flex-wrap:wrap">
+      <span><span style="color:var(--green)">●</span> Done</span><span><span style="color:var(--yellow)">●</span> Current</span>
+      <span><span style="color:#a0aec0">●</span> Next</span><span><span style="color:var(--muted)">●</span> Waiting</span>
+    </div>
+    <div class="token-line" id="c-token-line-ui"><div style="color:var(--muted);font-size:0.83rem">No tokens yet.</div></div>
+  </div>
+</div>
+
+<!-- CUSTOMER ITEMS -->
+<div id="page-items-customer" class="page">
+  <div class="section-title">Available <span>Items</span></div>
+  <div class="search-bar-wrap"><span class="search-icon">🔍</span><input type="text" id="c-item-search" placeholder="Search items..." oninput="filterItemsC()"></div>
+  <div class="grid-4" id="c-items-grid"></div>
+</div>
+
+<!-- CUSTOMER COMPLAINT -->
+<div id="page-complaint-customer" class="page">
+  <div class="section-title">Submit <span>Complaint</span></div>
+  <div class="grid-2" style="align-items:start">
+    <div class="card">
+      <div class="card-title">📝 New Complaint</div>
+      <div class="form-group"><label>Your Name</label><input type="text" id="c-name" placeholder="Enter your name"></div>
+      <div class="form-group"><label>Token Number (Optional)</label><input type="text" id="c-token-num" placeholder="Your token #"></div>
+      <div class="form-group"><label>Category</label>
+        <select id="c-cat">
+          <option value="Service">Service Issue</option><option value="Item">Wrong Item</option>
+          <option value="Quantity">Quantity Mismatch</option><option value="Staff">Staff Behavior</option><option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Details</label><textarea id="c-msg" rows="4" placeholder="Describe your complaint..."></textarea></div>
+      <button class="btn btn-danger" style="width:100%;justify-content:center" onclick="submitComplaint()">Submit Complaint</button>
+    </div>
+    <div>
+      <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;margin-bottom:0.88rem">📋 My Complaints</div>
+      <div id="c-complaint-list"><div class="empty-state"><div class="es-icon">📭</div><p>No complaints submitted yet.</p></div></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ══════════════════ OTP MODAL ══════════════════ -->
+<div class="otp-overlay" id="otp-overlay">
+  <div class="otp-box">
+    <div class="otp-title">🔐 OTP Verification</div>
+    <div class="otp-sub" id="otp-sub-text">Enter this OTP to the customer for confirmation</div>
+    <div class="otp-display" id="otp-display">——</div>
+    <div style="margin:0.5rem 0 0.3rem;font-size:0.78rem;color:var(--muted)">Customer enters OTP:</div>
+    <input type="text" class="otp-verify-input" id="otp-verify-input" maxlength="6" placeholder="——" oninput="checkOTP()">
+    <div class="otp-timer">Expires in: <span id="otp-countdown">05:00</span></div>
+    <div style="margin-top:1.2rem;display:flex;gap:0.6rem;justify-content:center">
+      <button class="btn btn-outline btn-sm" onclick="closeOTPModal()">Cancel</button>
+      <button class="btn btn-orange" onclick="verifyAndBill()">✅ Confirm & Generate Bill</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ BILL RECEIPT MODAL ══════════════════ -->
+<div class="bill-modal-overlay" id="bill-modal-overlay">
+  <div class="bill-modal">
+    <div class="bill-receipt" id="bill-receipt-content"></div>
+    <div style="padding:0 1.75rem 1.5rem;display:flex;gap:0.6rem">
+      <button class="btn btn-success" style="flex:1;justify-content:center" onclick="closeBillModal()">✅ Done</button>
+      <button class="btn btn-outline btn-sm" onclick="printBill()">🖨️ Print</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ ADD CUSTOMER MODAL ══════════════════ -->
+<div class="otp-overlay" id="add-customer-modal">
+  <div class="otp-box" style="max-width:460px;text-align:left">
+    <div class="otp-title">➕ Add Customer</div>
+    <div class="form-group"><label>Full Name *</label><input type="text" id="new-cust-name" placeholder="e.g. Murugan Rajan"></div>
+    <div class="form-group"><label>Ration Card Number *</label><input type="text" id="new-cust-card" placeholder="TN-XXXXXX"></div>
+    <div class="grid-2">
+      <div class="form-group"><label>Phone</label><input type="text" id="new-cust-phone" placeholder="+91 XXXXXXXXXX"></div>
+      <div class="form-group"><label>Members in Family</label><input type="number" id="new-cust-members" placeholder="4" min="1" max="20"></div>
+    </div>
+    <div class="form-group"><label>Address</label><input type="text" id="new-cust-address" placeholder="Street, Village, Taluk"></div>
+    <div style="display:flex;gap:0.6rem;margin-top:0.5rem">
+      <button class="btn btn-outline btn-sm" onclick="closeAddCustomerModal()">Cancel</button>
+      <button class="btn btn-orange" onclick="submitNewCustomer()">➕ Add Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chatbot -->
+<button class="chatbot-fab" id="chatbot-fab" style="display:none" onclick="toggleChat()">🤖</button>
+<div class="chatbot-panel" id="chatbot-panel">
+  <div class="chat-header">
+    <div class="chat-avatar">🤖</div>
+    <div><div class="chat-title">RationBot</div><div class="chat-subtitle">● Online</div></div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="quick-btns">
+    <button class="qbtn" onclick="quickAsk('current token')">Token?</button>
+    <button class="qbtn" onclick="quickAsk('items available')">Items?</button>
+    <button class="qbtn" onclick="quickAsk('shop open')">Open?</button>
+    <button class="qbtn" onclick="quickAsk('queue')">Queue?</button>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chat-input" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+<div class="notification" id="notif" style="display:none">
+  <span>🔔</span><span class="notif-text" id="notif-text">Your token is next!</span>
+  <button class="notif-close" onclick="document.getElementById('notif').style.display='none'">✕</button>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
